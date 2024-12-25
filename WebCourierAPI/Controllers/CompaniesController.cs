@@ -10,10 +10,11 @@ using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
-{[EnableCors("Policy1")]
-[AuthAttribute("", "Companies")]
-[Route("api/[controller]")]
-[ApiController]
+{
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "Companies")]
+    [Route("api/[controller]")]
+    [ApiController]
 public class CompaniesController : ControllerBase
 {
     //private readonly CompanyDbContext _context;
