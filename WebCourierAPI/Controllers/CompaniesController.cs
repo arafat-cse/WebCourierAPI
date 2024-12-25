@@ -92,17 +92,34 @@ public class CompaniesController : ControllerBase
 
         //    return CreatedAtAction("GetCompany", new { id = company.CompanyId }, company);
         //}
+        //[HttpPost]
+        //public async Task<ActionResult<Company>> PostCompany(Company company)
+        //{
+        //    WebCorierApiContext _context = new WebCorierApiContext();
+        //    Console.WriteLine($"Received Company Name: {company.CompanyName}");
+        //    Console.WriteLine($"Created By: {company.CreateBy}, Created Date: {company.CreateDate}");
+
+        //    _context.Companys.Add(company);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetCompany", new { id = company.CompanyId }, company);
+        //}
         [HttpPost]
-        public async Task<ActionResult<Company>> PostCompany(Company company)
+        public IActionResult CreateCompany([FromBody] Company company)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-            Console.WriteLine($"Received Company Name: {company.CompanyName}");
-            Console.WriteLine($"Created By: {company.CreateBy}, Created Date: {company.CreateDate}");
+            if (company == null || string.IsNullOrEmpty(company.CompanyName))
+            {
+                return BadRequest("CompanyName is required");
+            }
+
+            company.CreateBy = "System"; // Default value or from Authenticated User
+            company.CreateDate = DateTime.UtcNow;
 
             _context.Companys.Add(company);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            return CreatedAtAction("GetCompany", new { id = company.CompanyId }, company);
+            return CreatedAtAction(nameof(GetCompanies), new { id = company.CompanyId }, company);
         }
 
 
