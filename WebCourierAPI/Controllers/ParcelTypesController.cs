@@ -13,7 +13,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "ParcelTypes")]
     [Route("api/[controller]")]
     [ApiController]
     public class ParcelTypesController : ControllerBase
@@ -64,12 +64,23 @@ namespace WebCourierAPI.Controllers
             {
                 return NotFound("Company not found.");
             }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
 
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
             existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
-            existingParcelType.UpdateBy = parcelType.UpdateBy;
-            existingParcelType.UpdateDate = DateTime.UtcNow;
+            existingParcelType.CreateBy = user.UserName;
+            existingParcelType.CreateDate = DateTime.UtcNow;
 
-            _context.Entry(parcelType).State = EntityState.Modified;
+            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcelType.UpdateBy = parcelType.UpdateBy;
+            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            existingParcelType.IsActive = parcelType.IsActive;
+
+            _context.Entry(existingParcelType).State = EntityState.Modified;
 
             try
             {
@@ -149,6 +160,7 @@ namespace WebCourierAPI.Controllers
         public async Task<IActionResult> DeleteParcelType(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
+
             var parcelType = await _context.ParcelTypes.FindAsync(id);
             if (parcelType == null)
             {
