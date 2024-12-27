@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebCourierAPI.Controllers
 {
@@ -55,8 +56,18 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             if (id != parcelType.ParcelTypeId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched Company ID.");
             }
+
+            var existingParcelType = await _context.ParcelTypes.FindAsync(id);
+            if (existingParcelType == null)
+            {
+                return NotFound("Company not found.");
+            }
+
+            existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            existingParcelType.UpdateBy = parcelType.UpdateBy;
+            existingParcelType.UpdateDate = DateTime.UtcNow;
 
             _context.Entry(parcelType).State = EntityState.Modified;
 
@@ -80,11 +91,53 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/ParcelTypes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<ParcelType>> PostParcelType([FromBody] ParcelType parcelType)
+        //{
+        //    WebCorierApiContext _context = new WebCorierApiContext();
+        //    if (parcelType == null || string.IsNullOrEmpty(parcelType.ParcelTypeName))
+        //    {
+        //        return BadRequest("CompanyName is required");
+        //    }
+        //    var token = Request.Headers["Token"].FirstOrDefault();
+        //    var user = AuthenticationHelper.ValidateToken(token);
+
+        //    if (user == null)
+        //    {
+        //        return Unauthorized("Invalid or expired token.");
+        //    }
+
+        //    parcelType.CreateBy = user.UserName;
+        //    parcelType.CreateDate = DateTime.UtcNow;
+
+        //    _context.ParcelTypes.Add(parcelType);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetParcelType", new { id = parcelType.ParcelTypeId }, parcelType);
+        //}
+
         [HttpPost]
-        public async Task<ActionResult<ParcelType>> PostParcelType(ParcelType parcelType)
+        public async Task<ActionResult<ParcelType>> PostParcelType([FromBody] ParcelType parcelType)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (parcelType == null || string.IsNullOrEmpty(parcelType.ParcelTypeName))
+            {
+                return BadRequest("Parcel type name is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            parcelType.CreateBy = user.UserName;
+            parcelType.CreateDate = DateTime.UtcNow;
+
             _context.ParcelTypes.Add(parcelType);
             await _context.SaveChangesAsync();
 

@@ -9,9 +9,9 @@ public partial class ParcelType
 
     public string ParcelTypeName { get; set; } = null!;
 
-    public string CreateBy { get; set; } = null!;
+    public string? CreateBy { get; set; } = null!;
 
-    public DateTime CreateDate { get; set; }
+    public DateTime? CreateDate { get; set; }
 
     public string? UpdateBy { get; set; }
 
