@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "ParcelTypes")]
     [Route("api/[controller]")]
     [ApiController]
     public class DesignationsController : ControllerBase
@@ -68,8 +72,8 @@ namespace WebCourierAPI.Controllers
                 return Unauthorized("Invalid or expired token.");
             }
             existingDesignation.Title = designation.Title;
-            //existingDesignation.CreateBy = user.UserName;
-            //existingDesignation.CreateDate = DateTime.UtcNow;
+            existingDesignation.CreateBy = user.UserName;
+            existingDesignation.CreateDate = DateTime.UtcNow;
 
             _context.Entry(designation).State = EntityState.Modified;
 
@@ -101,7 +105,7 @@ namespace WebCourierAPI.Controllers
 
             if (designation == null || string.IsNullOrEmpty(designation.Title))
             {
-                return BadRequest("Title is required");
+                return BadRequest("designation is required");
             }
 
             var token = Request.Headers["Token"].FirstOrDefault();
