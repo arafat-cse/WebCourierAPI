@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "ParcelTypes")]
     [Route("api/[controller]")]
     [ApiController]
     public class DeliveryChargesController : ControllerBase
     {
-        WebCorierApiContext _context = new WebCorierApiContext();
+       
 
         //public DeliveryChargesController(WebCorierApiContext context)
         //{
@@ -33,6 +37,7 @@ namespace WebCourierAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DeliveryCharge>> GetDeliveryCharge(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             var deliveryCharge = await _context.DeliveryCharges.FindAsync(id);
 
             if (deliveryCharge == null)
@@ -48,10 +53,32 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDeliveryCharge(int id, DeliveryCharge deliveryCharge)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != deliveryCharge.DeliveryChargeId)
             {
                 return BadRequest();
             }
+
+            var existingDeliveryCharge = await _context.DeliveryCharges.FindAsync(id);
+            if (existingDeliveryCharge == null)
+            {
+                return NotFound("Company not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            //existingDeliveryCharge.del = parcelType.ParcelTypeName;
+            existingDeliveryCharge.CreateBy = user.UserName;
+            existingDeliveryCharge.CreateDate = DateTime.UtcNow;
+
+            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcelType.UpdateBy = parcelType.UpdateBy;
+            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            existingDeliveryCharge.IsActive = deliveryCharge.IsActive;
 
             _context.Entry(deliveryCharge).State = EntityState.Modified;
 
@@ -77,8 +104,25 @@ namespace WebCourierAPI.Controllers
         // POST: api/DeliveryCharges
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<DeliveryCharge>> PostDeliveryCharge(DeliveryCharge deliveryCharge)
+        public async Task<ActionResult<DeliveryCharge>> PostDeliveryCharge([FromBody]DeliveryCharge deliveryCharge)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+            if (deliveryCharge == null)
+            {
+                return BadRequest("DeliveryCharge type name is required.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            deliveryCharge.CreateBy = user.UserName;
+            deliveryCharge.CreateDate = DateTime.UtcNow;
+
+
             _context.DeliveryCharges.Add(deliveryCharge);
             await _context.SaveChangesAsync();
 
@@ -89,6 +133,7 @@ namespace WebCourierAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDeliveryCharge(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             var deliveryCharge = await _context.DeliveryCharges.FindAsync(id);
             if (deliveryCharge == null)
             {
@@ -103,6 +148,7 @@ namespace WebCourierAPI.Controllers
 
         private bool DeliveryChargeExists(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             return _context.DeliveryCharges.Any(e => e.DeliveryChargeId == id);
         }
     }
