@@ -11,8 +11,8 @@ using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
-    [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    //[EnableCors("Policy1")]
+    //[AuthAttribute("", "Companies")]
     [Route("api/[controller]")]
     [ApiController]
     public class BankController : ControllerBase
@@ -29,7 +29,7 @@ namespace WebCourierAPI.Controllers
         public async Task<ActionResult<IEnumerable<Bank>>> GetBanks()
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-            return await _context.Banks.ToListAsync();
+            return await _context.Banks.Include(c=>c.Company).ToListAsync();
         }
 
         // GET: api/Bank/5
@@ -72,7 +72,7 @@ namespace WebCourierAPI.Controllers
             _context.Banks.Add(bank);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBank), new { id = bank.BankId }, bank);
+            return CreatedAtAction("GetBank", new { id = bank.BankId }, bank);
         }
 
         // PUT: api/Bank/5
@@ -89,8 +89,20 @@ namespace WebCourierAPI.Controllers
             { 
                 return NotFound("Bank ID in not Found");
             }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+               
+            }
             existingBank.BranchName = bank.BranchName;
-            
+            existingBank.CreateBy = user.UserName;
+            existingBank.CreateDate = DateTime.UtcNow;
+            existingBank.IsActive = bank.IsActive;
+
+            existingBank.BranchName = bank.BranchName;
+
             _context.Entry(existingBank).State = EntityState.Modified;
 
             try
