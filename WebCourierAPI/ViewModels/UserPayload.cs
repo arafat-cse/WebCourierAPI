@@ -6,5 +6,7 @@
         public int UserId { get; set; }
         public int TokenExpire { get; set; }
         public DateTime CreateDate { get; set; }
+
+      
     }
 }

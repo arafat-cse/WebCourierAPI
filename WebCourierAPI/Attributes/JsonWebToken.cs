@@ -119,6 +119,8 @@ namespace WebCourierAPI.Attributes
             var converted = Convert.FromBase64String(output); // Standard base64 decoder
             return converted;
         }
+
+      
     }
     public enum JwtHashAlgorithm
     {

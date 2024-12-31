@@ -10,4 +10,6 @@ public partial class UserDetail
     public string? UserName { get; set; }
 
     public string? PassWord { get; set; }
+
+   
 }
