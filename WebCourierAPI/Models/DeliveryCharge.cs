@@ -23,7 +23,7 @@ public partial class DeliveryCharge
 
     public int ParcelTypeId { get; set; }
 
-    public virtual ParcelType ParcelType { get; set; } = null!;
+    public virtual ParcelType? ParcelType { get; set; } = null!;
 
     public virtual ICollection<Parcel> Parcels { get; set; } = new List<Parcel>();
 }
