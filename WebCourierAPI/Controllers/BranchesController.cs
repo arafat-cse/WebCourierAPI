@@ -2,105 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "Companies")]
     [Route("api/[controller]")]
     [ApiController]
     public class BranchesController : ControllerBase
     {
         WebCorierApiContext _db = new WebCorierApiContext();
-
-     
-
-        //    // GET: api/Branches
-        //    [HttpGet]
-        //    public async Task<ActionResult<IEnumerable<Branch>>> GetBranches()
-        //    {
-        //        return await _context.Branches.ToListAsync();
-        //    }
-
-        //    // GET: api/Branches/5
-        //    [HttpGet("{id}")]
-        //    public async Task<ActionResult<Branch>> GetBranch(int id)
-        //    {
-        //        var branch = await _context.Branches.FindAsync(id);
-
-        //        if (branch == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        return branch;
-        //    }
-
-        //    // PUT: api/Branches/5
-        //    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //    [HttpPut("{id}")]
-        //    public async Task<IActionResult> PutBranch(int id, Branch branch)
-        //    {
-        //        if (id != branch.BranchId)
-        //        {
-        //            return BadRequest();
-        //        }
-
-        //        _context.Entry(branch).State = EntityState.Modified;
-
-        //        try
-        //        {
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!BranchExists(id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-
-        //        return NoContent();
-        //    }
-
-        //    // POST: api/Branches
-        //    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //    [HttpPost]
-        //    public async Task<ActionResult<Branch>> PostBranch(Branch branch)
-        //    {
-        //        _context.Branches.Add(branch);
-        //        await _context.SaveChangesAsync();
-
-        //        return CreatedAtAction("GetBranch", new { id = branch.BranchId }, branch);
-        //    }
-
-        //    // DELETE: api/Branches/5
-        //    [HttpDelete("{id}")]
-        //    public async Task<IActionResult> DeleteBranch(int id)
-        //    {
-        //        var branch = await _context.Branches.FindAsync(id);
-        //        if (branch == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        _context.Branches.Remove(branch);
-        //        await _context.SaveChangesAsync();
-
-        //        return NoContent();
-        //    }
-
-        //    private bool BranchExists(int id)
-        //    {
-        //        return _context.Branches.Any(e => e.BranchId == id);
-        //    }
-        //}
         //CommanResponse
         private readonly CommanResponse cp = new CommanResponse();
 
@@ -221,6 +138,17 @@ namespace WebCourierAPI.Controllers
                         return BadRequest(cp);
                     }
                 }
+                var token = Request.Headers["Token"].FirstOrDefault();
+                var user = AuthenticationHelper.ValidateToken(token);
+
+                if (user == null)
+                {
+                    return Unauthorized("Invalid or expired token.");
+                }
+
+                branch.CreateBy = user.UserName;
+                branch.CreateDate = DateTime.UtcNow;
+
 
                 _db.Branches.Add(branch);
                 await _db.SaveChangesAsync();
@@ -263,6 +191,26 @@ namespace WebCourierAPI.Controllers
                         return BadRequest(cp);
                     }
                 }
+                var existingBranch = await _db.Branches.FindAsync(id);
+                if (existingBranch == null)
+                {
+                    return NotFound("Company not found.");
+                }
+                var token = Request.Headers["Token"].FirstOrDefault();
+                var user = AuthenticationHelper.ValidateToken(token);
+
+                if (user == null)
+                {
+                    return Unauthorized("Invalid or expired token.");
+                }
+                
+                existingBranch.BranchName = branch.BranchName;
+                existingBranch.CreateBy = user.UserName;
+                existingBranch.CreateDate = DateTime.UtcNow;
+
+
+                existingBranch.IsActive = branch.IsActive;
+
 
                 _db.Entry(branch).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
