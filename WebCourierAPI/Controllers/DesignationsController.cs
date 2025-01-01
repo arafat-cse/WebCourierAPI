@@ -18,13 +18,6 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class DesignationsController : ControllerBase
     {
-        //private readonly WebCorierApiContext _context;
-
-        //public DesignationsController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: api/Designations
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Designation>>> GetDesignations()
@@ -49,7 +42,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // PUT: api/Designations/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDesignation(int id, Designation designation)
         {
@@ -97,7 +89,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/Designations
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Designation>> PostDesignation(Designation designation)
         {

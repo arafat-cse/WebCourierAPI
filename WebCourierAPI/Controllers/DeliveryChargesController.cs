@@ -17,13 +17,6 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class DeliveryChargesController : ControllerBase
     {
-       
-
-        //public DeliveryChargesController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: api/DeliveryCharges
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DeliveryCharge>>> GetDeliveryCharges()
@@ -32,7 +25,6 @@ namespace WebCourierAPI.Controllers
             //return await _context.DeliveryCharges.ToListAsync();
             return await _context.DeliveryCharges.Include(dc => dc.ParcelType).Include(dc => dc.Parcels).ToListAsync();
         }
-
         // GET: api/DeliveryCharges/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DeliveryCharge>> GetDeliveryCharge(int id)
@@ -49,7 +41,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // PUT: api/DeliveryCharges/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDeliveryCharge(int id, DeliveryCharge deliveryCharge)
         {
@@ -100,9 +91,7 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         // POST: api/DeliveryCharges
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<DeliveryCharge>> PostDeliveryCharge([FromBody]DeliveryCharge deliveryCharge)
         {
@@ -145,7 +134,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         private bool DeliveryChargeExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();

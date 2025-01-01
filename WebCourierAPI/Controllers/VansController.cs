@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "Companies")]
     [Route("api/[controller]")]
     [ApiController]
     public class VansController : ControllerBase
@@ -42,7 +46,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // PUT: api/Vans/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVan(int id, Van van)
         {
@@ -73,7 +76,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/Vans
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Van>> PostVan(Van van)
         {
@@ -98,7 +100,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         private bool VanExists(int id)
         {
             return _context.Vans.Any(e => e.VanId == id);
