@@ -19,12 +19,6 @@ namespace WebCourierAPI.Controllers
     public class ParcelTypesController : ControllerBase
     {
         //private readonly WebCorierApiContext _context;
-
-        //public ParcelTypesController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: api/ParcelTypes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ParcelType>>> GetParcelTypes()
@@ -48,7 +42,6 @@ namespace WebCourierAPI.Controllers
             return parcelType;
         }
         // PUT: api/ParcelTypes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutParcelType(int id, ParcelType parcelType)
         {
@@ -99,34 +92,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
-        // POST: api/ParcelTypes
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<ParcelType>> PostParcelType([FromBody] ParcelType parcelType)
-        //{
-        //    WebCorierApiContext _context = new WebCorierApiContext();
-        //    if (parcelType == null || string.IsNullOrEmpty(parcelType.ParcelTypeName))
-        //    {
-        //        return BadRequest("CompanyName is required");
-        //    }
-        //    var token = Request.Headers["Token"].FirstOrDefault();
-        //    var user = AuthenticationHelper.ValidateToken(token);
-
-        //    if (user == null)
-        //    {
-        //        return Unauthorized("Invalid or expired token.");
-        //    }
-
-        //    parcelType.CreateBy = user.UserName;
-        //    parcelType.CreateDate = DateTime.UtcNow;
-
-        //    _context.ParcelTypes.Add(parcelType);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetParcelType", new { id = parcelType.ParcelTypeId }, parcelType);
-        //}
-
         [HttpPost]
         public async Task<ActionResult<ParcelType>> PostParcelType([FromBody] ParcelType parcelType)
         {

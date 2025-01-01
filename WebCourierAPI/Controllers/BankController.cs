@@ -17,13 +17,6 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class BankController : ControllerBase
     {
-        //private readonly WebCorierApiContext _context;
-
-        //public BankController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: api/Bank
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Bank>>> GetBanks()
@@ -31,7 +24,6 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             return await _context.Banks.ToListAsync();
         }
-
         // GET: api/Bank/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Bank>> GetBank(int id)
@@ -46,7 +38,6 @@ namespace WebCourierAPI.Controllers
 
             return bank;
         }
-
         // POST: api/Bank
         [HttpPost]
         public async Task<ActionResult<Bank>> PostBank([FromBody] Bank bank)
@@ -74,7 +65,6 @@ namespace WebCourierAPI.Controllers
 
             return CreatedAtAction(nameof(GetBank), new { id = bank.BankId }, bank);
         }
-
         // PUT: api/Bank/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBank(int id,[FromBody] Bank bank)
@@ -127,7 +117,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         private bool BankExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();

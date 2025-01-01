@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "Companies")]
     [Route("api/[controller]")]
     [ApiController]
     public class ParcelsController : ControllerBase
     {
-        //private readonly WebCorierApiContext _context;
-
-        //public ParcelsController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
         //CommanResponse
         private readonly CommanResponse cp = new CommanResponse();
         // GET: api/Parcels
@@ -34,13 +32,6 @@ namespace WebCourierAPI.Controllers
         public async Task<ActionResult<Parcel>> GetParcel(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-
-            //var parcel = await _context.Parcels.FindAsync(id);
-
-            //if (parcel == null)
-            //{
-            //    return NotFound();
-            //}
 
             //return parcel;
 
@@ -72,7 +63,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // PUT: api/Parcels/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutParcel(int id, Parcel parcel)
         {
@@ -124,18 +114,10 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/Parcels
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Parcel>> PostParcel(Parcel parcel)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-
-            //_context.Parcels.Add(parcel);
-            //await _context.SaveChangesAsync();
-
-            //return CreatedAtAction("GetParcel", new { id = parcel.ParcelId }, parcel);
-
-
             if (parcel == null)
             {
                 return BadRequest("Parcel type name is required.");
@@ -177,7 +159,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         private bool ParcelExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();

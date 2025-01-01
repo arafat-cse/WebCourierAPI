@@ -70,7 +70,6 @@ namespace WebCourierAPI.Controllers
                 return StatusCode(500, cp);
             }
         }
-
         // GET:/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBranch(int id)
@@ -105,7 +104,6 @@ namespace WebCourierAPI.Controllers
                         IsActive = cb.IsActive
                     }).ToList()
                 };
-
                 cp.status = true;
                 cp.message = "Branch retrieved successfully.";
                 cp.content = branchDto;

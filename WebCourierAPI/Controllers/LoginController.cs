@@ -12,6 +12,8 @@ using WebCourierAPI.ViewModels;
 
 namespace WebCourierAPI.Controllers
 {
+    [EnableCors("Policy1")]
+    [AuthAttribute("", "Companies")]
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
@@ -33,7 +35,6 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/Login
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [EnableCors("Policy1")]
         [HttpPost]
         public async Task<IActionResult> PostUserDetail(UserDetail userDetail)

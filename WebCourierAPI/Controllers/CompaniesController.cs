@@ -16,13 +16,6 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class CompaniesController : ControllerBase
     {
-        //private readonly WebCorierApiContext _context;
-
-        //public CompaniesController(WebCorierApiContext context)
-        //{
-        //    _context = context;
-        //}
-
         // GET: api/Companies
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
@@ -46,7 +39,6 @@ namespace WebCourierAPI.Controllers
 
             return company;
         }
-
         // POST: api/Companies
         [HttpPost]
         public async Task<IActionResult> CreateCompany([FromBody] Company company)
@@ -74,7 +66,6 @@ namespace WebCourierAPI.Controllers
 
             return CreatedAtAction(nameof(GetCompany), new { id = company.CompanyId }, company);
         }
-
         // PUT: api/Companies/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCompany(int id, [FromBody] Company company)
@@ -95,7 +86,6 @@ namespace WebCourierAPI.Controllers
             existingCompany.CompanyName = company.CompanyName;
             //existingCompany.UpdateBy = company.UpdateBy;
             //existingCompany.UpdateDate = DateTime.UtcNow;
-
             _context.Entry(existingCompany).State = EntityState.Modified;
 
             try
@@ -134,7 +124,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         private bool CompanyExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
