@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Staffs")]
     [Route("api/[controller]")]
     [ApiController]
     public class StaffsController : ControllerBase
@@ -49,12 +49,35 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStaff(int id, Staff staff)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != staff.StaffId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched staff ID.");
             }
 
-            _context.Entry(staff).State = EntityState.Modified;
+
+            var staffexists = await _context.Staffs.FindAsync(id);
+            if (staffexists == null)
+            {
+                return NotFound("staff not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            staffexists.StaffName = staff.StaffName;
+            staffexists.CreateBy = user.UserName;
+            staffexists.CreateDate = DateTime.UtcNow;
+
+            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcelType.UpdateBy = parcelType.UpdateBy;
+            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            staffexists.IsActive = staffexists.IsActive;
+
+            _context.Entry(staffexists).State = EntityState.Modified;
 
             try
             {
@@ -77,16 +100,34 @@ namespace WebCourierAPI.Controllers
 
         // POST: api/Staffs
         [HttpPost]
-        public async Task<ActionResult<Staff>> PostStaff(Staff staff)
+        public async Task<ActionResult<Staff>> PostStaff([FromBody] Staff staff)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (staff == null || string.IsNullOrEmpty(staff.StaffName))
+            {
+                return BadRequest("staff name is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            staff.CreateBy = user.UserName;
+            staff.CreateDate = DateTime.UtcNow;
+
             _context.Staffs.Add(staff);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStaff", new { id = staff.StaffId }, staff);
+            return CreatedAtAction(nameof(GetStaff), new { id = staff.StaffId }, staff);
         }
 
-        // DELETE: api/Staffs/5
-        [HttpDelete("{id}")]
+            // DELETE: api/Staffs/5
+            [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStaff(int id)
         {
             var staff = await _context.Staffs.FindAsync(id);

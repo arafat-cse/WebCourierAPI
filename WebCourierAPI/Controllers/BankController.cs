@@ -8,11 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
-
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Bank")]
     [Route("api/[controller]")]
     [ApiController]
     public class BankController : ControllerBase
@@ -67,21 +66,35 @@ namespace WebCourierAPI.Controllers
         }
         // PUT: api/Bank/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBank(int id,[FromBody] Bank bank)
+        public async Task<IActionResult> PutBank(int id, Bank bank)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
             if (id != bank.BankId)
             {
                 return BadRequest("Mismatch Bank Id");
             }
-            var existingBank = await _context.Banks.FindAsync(id);
-            if (existingBank == null) 
+            var existingbank = await _context.Banks.FindAsync(id);
+            if (existingbank == null) 
             { 
                 return NotFound("Bank ID in not Found");
             }
-            existingBank.BranchName = bank.BranchName;
-            
-            _context.Entry(existingBank).State = EntityState.Modified;
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingbank.BranchName = bank.BranchName;
+            existingbank.CreateBy = user.UserName;
+            existingbank.CreateDate = DateTime.UtcNow;
+
+            existingbank.IsActive = bank.IsActive;
+
+
+
+            _context.Entry(existingbank).State = EntityState.Modified;
 
             try
             {

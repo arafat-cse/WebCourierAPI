@@ -37,6 +37,7 @@ namespace WebCourierAPI.Controllers
                 return NotFound();
             }
 
+
             return company;
         }
         // POST: api/Companies
@@ -68,7 +69,7 @@ namespace WebCourierAPI.Controllers
         }
         // PUT: api/Companies/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCompany(int id, [FromBody] Company company)
+        public async Task<IActionResult> UpdateCompany(int id, Company company)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
 
@@ -77,16 +78,25 @@ namespace WebCourierAPI.Controllers
                 return BadRequest("Mismatched Company ID.");
             }
 
-            var existingCompany = await _context.Companys.FindAsync(id);
-            if (existingCompany == null)
+            var existingcompany = await _context.Companys.FindAsync(id);
+            if (existingcompany == null)
             {
-                return NotFound("Company not found.");
+                return NotFound("company not found.");
             }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
 
-            existingCompany.CompanyName = company.CompanyName;
-            //existingCompany.UpdateBy = company.UpdateBy;
-            //existingCompany.UpdateDate = DateTime.UtcNow;
-            _context.Entry(existingCompany).State = EntityState.Modified;
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingcompany.CompanyName = company.CompanyName;
+            existingcompany.CreateBy = user.UserName;
+            existingcompany.CreateDate = DateTime.UtcNow;
+
+          
+
+            _context.Entry(existingcompany).State = EntityState.Modified;
 
             try
             {

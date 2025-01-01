@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Parcels")]
     [Route("api/[controller]")]
     [ApiController]
     public class ParcelsController : ControllerBase
@@ -120,7 +120,7 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             if (parcel == null)
             {
-                return BadRequest("Parcel type name is required.");
+                return BadRequest("Parcel name is required.");
             }
 
             var token = Request.Headers["Token"].FirstOrDefault();

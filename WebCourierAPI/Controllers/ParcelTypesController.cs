@@ -48,13 +48,14 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             if (id != parcelType.ParcelTypeId)
             {
-                return BadRequest("Mismatched Company ID.");
+                return BadRequest("Mismatched perceltype ID.");
             }
+
 
             var existingParcelType = await _context.ParcelTypes.FindAsync(id);
             if (existingParcelType == null)
             {
-                return NotFound("Company not found.");
+                return NotFound("percel not found.");
             }
             var token = Request.Headers["Token"].FirstOrDefault();
             var user = AuthenticationHelper.ValidateToken(token);
@@ -116,7 +117,7 @@ namespace WebCourierAPI.Controllers
             _context.ParcelTypes.Add(parcelType);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetParcelType", new { id = parcelType.ParcelTypeId }, parcelType);
+            return CreatedAtAction(nameof(GetParcelType), new { id = parcelType.ParcelTypeId }, parcelType);
         }
 
         // DELETE: api/ParcelTypes/5

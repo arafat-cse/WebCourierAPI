@@ -13,7 +13,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "ParcelTypes")]
+    [AuthAttribute("", "Designations")]
     [Route("api/[controller]")]
     [ApiController]
     public class DesignationsController : ControllerBase
@@ -87,7 +87,6 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
-
         // POST: api/Designations
         [HttpPost]
         public async Task<ActionResult<Designation>> PostDesignation(Designation designation)

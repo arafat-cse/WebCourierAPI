@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "ParcelTypes")]
+    [AuthAttribute("", "DeliveryCharges")]
     [Route("api/[controller]")]
     [ApiController]
     public class DeliveryChargesController : ControllerBase
@@ -53,7 +53,7 @@ namespace WebCourierAPI.Controllers
             var existingDeliveryCharge = await _context.DeliveryCharges.FindAsync(id);
             if (existingDeliveryCharge == null)
             {
-                return NotFound("Company not found.");
+                return NotFound("Not found.");
             }
             var token = Request.Headers["Token"].FirstOrDefault();
             var user = AuthenticationHelper.ValidateToken(token);
@@ -110,7 +110,6 @@ namespace WebCourierAPI.Controllers
 
             deliveryCharge.CreateBy = user.UserName;
             deliveryCharge.CreateDate = DateTime.UtcNow;
-
 
             _context.DeliveryCharges.Add(deliveryCharge);
             await _context.SaveChangesAsync();

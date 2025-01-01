@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Customers")]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomersController : ControllerBase
@@ -49,12 +49,32 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != customer.CustomerId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched Customer id.");
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
+
+            var existingcustomer = await _context.Customers.FindAsync(id);
+            if (existingcustomer == null)
+            {
+                return NotFound("customer not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingcustomer.CustomerName = customer.CustomerName;
+            existingcustomer.CreateBy = user.UserName;
+            existingcustomer.CreateDate = DateTime.UtcNow;
+
+            existingcustomer.IsActive = existingcustomer.IsActive;
+
+            _context.Entry(existingcustomer).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +97,30 @@ namespace WebCourierAPI.Controllers
 
         // POST: api/Customers
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<Customer>> PostCustomer([FromBody] Customer customer)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (customer == null || string.IsNullOrEmpty(customer.CustomerName))
+            {
+                return BadRequest("Customer type name is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            customer.CreateBy = user.UserName;
+            customer.CreateDate = DateTime.UtcNow;
+
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
+            return CreatedAtAction(nameof(GetCustomer), new { id = customer.CustomerId }, customer);
         }
 
         // DELETE: api/Customers/5
