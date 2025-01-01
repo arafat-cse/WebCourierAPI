@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Vans")]
     [Route("api/[controller]")]
     [ApiController]
     public class VansController : ControllerBase
@@ -49,12 +49,35 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVan(int id, Van van)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != van.VanId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched van ID.");
             }
 
-            _context.Entry(van).State = EntityState.Modified;
+
+            var existingvan = await _context.Vans.FindAsync(id);
+            if (existingvan == null)
+            {
+                return NotFound("van not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingvan.VanId = van.VanId;
+            existingvan.CreateBy = user.UserName;
+            existingvan.CreateDate = DateTime.UtcNow;
+
+            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcelType.UpdateBy = parcelType.UpdateBy;
+            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            existingvan.IsActive = van.IsActive;
+
+            _context.Entry(existingvan).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +100,30 @@ namespace WebCourierAPI.Controllers
 
         // POST: api/Vans
         [HttpPost]
-        public async Task<ActionResult<Van>> PostVan(Van van)
+        public async Task<ActionResult<Van>> PostVan([FromBody] Van van)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (van == null)
+            {
+                return BadRequest("van  id is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            van.CreateBy = user.UserName;
+            van.CreateDate = DateTime.UtcNow;
+
             _context.Vans.Add(van);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetVan", new { id = van.VanId }, van);
+            return CreatedAtAction(nameof(GetVan), new { id = van.VanId }, van);
         }
 
         // DELETE: api/Vans/5

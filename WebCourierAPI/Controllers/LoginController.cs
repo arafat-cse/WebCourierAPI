@@ -13,7 +13,7 @@ using WebCourierAPI.ViewModels;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Login")]
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
@@ -59,8 +59,6 @@ namespace WebCourierAPI.Controllers
                 return CreatedAtAction("GetUserDetail", new { id = oUserDetail.UserId }, oUserDetail);
             }
         }
-
-
         private bool UserDetailExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();

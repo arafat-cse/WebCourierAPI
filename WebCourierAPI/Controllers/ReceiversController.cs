@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "Receivers")]
     [Route("api/[controller]")]
     [ApiController]
     public class ReceiversController : ControllerBase
@@ -49,12 +49,35 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReceiver(int id, Receiver receiver)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != receiver.ReceiverId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched receiver ID.");
             }
 
-            _context.Entry(receiver).State = EntityState.Modified;
+
+            var existingReceiver = await _context.Receivers.FindAsync(id);
+            if (existingReceiver == null)
+            {
+                return NotFound("receber not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingReceiver.ReceiverName = receiver.ReceiverName;
+            //existingReceiver.CreateBy = user.UserName;
+            //existingReceiver.CreateDate = DateTime.UtcNow;
+
+            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcelType.UpdateBy = parcelType.UpdateBy;
+            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            //existingReceiver.IsActive = parcelType.IsActive;
+
+            _context.Entry(existingReceiver).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +100,30 @@ namespace WebCourierAPI.Controllers
 
         // POST: api/Receivers
         [HttpPost]
-        public async Task<ActionResult<Receiver>> PostReceiver(Receiver receiver)
+        public async Task<ActionResult<Receiver>> PostReceiver([FromBody] Receiver receiver)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (receiver == null || string.IsNullOrEmpty(receiver.ReceiverName))
+            {
+                return BadRequest("Receiver name is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            //receiver.CreateBy = user.UserName;
+            //parcelType.CreateDate = DateTime.UtcNow;
+
             _context.Receivers.Add(receiver);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReceiver", new { id = receiver.ReceiverId }, receiver);
+            return CreatedAtAction(nameof(GetReceiver), new { id = receiver.ReceiverId }, receiver);
         }
 
         // DELETE: api/Receivers/5

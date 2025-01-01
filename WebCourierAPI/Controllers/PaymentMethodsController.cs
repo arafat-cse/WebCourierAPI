@@ -12,7 +12,7 @@ using WebCourierAPI.Models;
 namespace WebCourierAPI.Controllers
 {
     [EnableCors("Policy1")]
-    [AuthAttribute("", "Companies")]
+    [AuthAttribute("", "PaymentMethods")]
     [Route("api/[controller]")]
     [ApiController]
     public class PaymentMethodsController : ControllerBase
@@ -49,12 +49,31 @@ namespace WebCourierAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPaymentMethod(int id, PaymentMethod paymentMethod)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             if (id != paymentMethod.PaymentMethodId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched paymentmethod ID.");
             }
 
-            _context.Entry(paymentMethod).State = EntityState.Modified;
+
+            var existingPayment = await _context.PaymentMethods.FindAsync(id);
+            if (existingPayment == null)
+            {
+                return NotFound("payment not found.");
+            }
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+            existingPayment.PaymentMethodType = paymentMethod.PaymentMethodType;
+            existingPayment.CreateBy = user.UserName;
+            existingPayment.CreateDate = DateTime.UtcNow;
+
+
+            _context.Entry(existingPayment).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +96,30 @@ namespace WebCourierAPI.Controllers
 
         // POST: api/PaymentMethods
         [HttpPost]
-        public async Task<ActionResult<PaymentMethod>> PostPaymentMethod(PaymentMethod paymentMethod)
+        public async Task<ActionResult<PaymentMethod>> PostPaymentMethod([FromBody] PaymentMethod paymentMethod)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            if (paymentMethod == null || string.IsNullOrEmpty(paymentMethod.PaymentMethodType))
+            {
+                return BadRequest("payment type name is required.");
+            }
+
+            var token = Request.Headers["Token"].FirstOrDefault();
+            var user = AuthenticationHelper.ValidateToken(token);
+
+            if (user == null)
+            {
+                return Unauthorized("Invalid or expired token.");
+            }
+
+            paymentMethod.CreateBy = user.UserName;
+            paymentMethod.CreateDate = DateTime.UtcNow;
+
             _context.PaymentMethods.Add(paymentMethod);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPaymentMethod", new { id = paymentMethod.PaymentMethodId }, paymentMethod);
+            return CreatedAtAction(nameof(GetPaymentMethod), new { id = paymentMethod.PaymentMethodId }, paymentMethod);
         }
 
         // DELETE: api/PaymentMethods/5
