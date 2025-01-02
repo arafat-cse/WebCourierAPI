@@ -12,8 +12,8 @@ using WebCourierAPI.ViewModels;
 
 namespace WebCourierAPI.Controllers
 {
-    [EnableCors("Policy1")]
-    [AuthAttribute("", "Login")]
+    //[EnableCors("Policy1")]
+    //[AuthAttribute("", "Login")]
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase

@@ -120,51 +120,116 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST:
+        //[HttpPost]
+        //public async Task<IActionResult> PostBranch(Branch branch)
+        //{
+        //    WebCorierApiContext _db = new WebCorierApiContext();
+        //    try
+        //    {
+        //        if (branch.ParentId.HasValue)
+        //        {
+        //            var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
+        //            if (parentBranch == null)
+        //            {
+        //                cp.status = false;
+        //                cp.message = "Invalid ParentId.";
+        //                return BadRequest(cp);
+        //            }
+        //        }
+        //        var token = Request.Headers["Token"].FirstOrDefault();
+        //        var user = AuthenticationHelper.ValidateToken(token);
+
+        //        if (user == null)
+        //        {
+        //            return Unauthorized("Invalid or expired token.");
+        //        }
+
+        //        branch.CreateBy = user.UserName;
+        //        branch.CreateDate = DateTime.UtcNow;
+
+
+        //        _db.Branches.Add(branch);
+        //        await _db.SaveChangesAsync();
+
+        //        cp.status = true;
+        //        cp.message = "Branch created successfully.";
+        //        cp.content = branch;
+        //        return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        cp.status = false;
+        //        cp.message = "Error occurred while creating the branch.";
+        //        cp.errorMessage = ex.Message;
+        //        cp.content = null;
+        //        return StatusCode(500, cp);
+        //    }
+        //}
+
         [HttpPost]
-        public async Task<IActionResult> PostBranch(Branch branch)
+public async Task<IActionResult> PostBranch(Branch branch)
+{
+    WebCorierApiContext _db = new WebCorierApiContext();
+    try
+    {
+        // Validate Model
+        if (!ModelState.IsValid)
         {
-            WebCorierApiContext _db = new WebCorierApiContext();
-            try
-            {
-                if (branch.ParentId.HasValue)
-                {
-                    var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
-                    if (parentBranch == null)
-                    {
-                        cp.status = false;
-                        cp.message = "Invalid ParentId.";
-                        return BadRequest(cp);
-                    }
-                }
-                var token = Request.Headers["Token"].FirstOrDefault();
-                var user = AuthenticationHelper.ValidateToken(token);
+            cp.status = false;
+            cp.message = "Invalid model data.";
+            cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors)
+                                               .Select(e => e.ErrorMessage)
+                                               .FirstOrDefault();
+            return BadRequest(cp);
+        }
 
-                if (user == null)
-                {
-                    return Unauthorized("Invalid or expired token.");
-                }
+        // Validate Token
+        var token = Request.Headers["Token"].FirstOrDefault();
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized("Token is missing.");
+        }
+        var user = AuthenticationHelper.ValidateToken(token);
+        if (user == null)
+        {
+            return Unauthorized("Invalid or expired token.");
+        }
 
-                branch.CreateBy = user.UserName;
-                branch.CreateDate = DateTime.UtcNow;
-
-
-                _db.Branches.Add(branch);
-                await _db.SaveChangesAsync();
-
-                cp.status = true;
-                cp.message = "Branch created successfully.";
-                cp.content = branch;
-                return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
-            }
-            catch (Exception ex)
+        // Validate ParentId
+        if (branch.ParentId.HasValue)
+        {
+            var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
+            if (parentBranch == null)
             {
                 cp.status = false;
-                cp.message = "Error occurred while creating the branch.";
-                cp.errorMessage = ex.Message;
-                cp.content = null;
-                return StatusCode(500, cp);
+                cp.message = "Invalid ParentId.";
+                return BadRequest(cp);
             }
         }
+
+        // Set Additional Fields
+        branch.CreateBy = user.UserName;
+        branch.CreateDate = DateTime.UtcNow;
+
+        // Save to Database
+        _db.Branches.Add(branch);
+        await _db.SaveChangesAsync();
+
+        // Return Success
+        cp.status = true;
+        cp.message = "Branch created successfully.";
+        cp.content = branch;
+        return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
+    }
+    catch (Exception ex)
+    {
+        cp.status = false;
+        cp.message = "Error occurred while creating the branch.";
+        cp.errorMessage = ex.Message;
+        cp.content = null;
+        return StatusCode(500, cp);
+    }
+}
 
         // PUT:/5
         [HttpPut("{id}")]
