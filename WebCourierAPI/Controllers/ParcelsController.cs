@@ -2,23 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebCourierAPI.Attributes;
 using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
-    [EnableCors("Policy1")]
-    [AuthAttribute("", "Parcels")]
     [Route("api/[controller]")]
     [ApiController]
     public class ParcelsController : ControllerBase
     {
-        //CommanResponse
-        private readonly CommanResponse cp = new CommanResponse();
+        
         // GET: api/Parcels
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Parcel>>> GetParcels()
@@ -32,66 +27,27 @@ namespace WebCourierAPI.Controllers
         public async Task<ActionResult<Parcel>> GetParcel(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
+            var parcel = await _context.Parcels.FindAsync(id);
 
-            //return parcel;
-
-            try
+            if (parcel == null)
             {
-                var parcel = await _context.Parcels.FindAsync(id);
-
-                if (parcel==null)
-                {
-                    cp.status = false;
-                    cp.message = "No branches found.";
-                    cp.content = null;
-                    return Ok(cp);
-                }
-
-                cp.status = true;
-                cp.message = "Branches retrieved successfully.";
-                cp.content = parcel;
-                return Ok(cp);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                cp.status = false;
-                cp.message = "Error occurred while retrieving branches.";
-                cp.errorMessage = ex.Message;
-                cp.content = null;
-                return StatusCode(500, cp);
-            }
+
+            return parcel;
         }
 
         // PUT: api/Parcels/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutParcel(int id, Parcel parcel)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-
             if (id != parcel.ParcelId)
             {
-                return BadRequest("Mismatched Company ID.");
+                return BadRequest();
             }
-            var existingParcel = await _context.Parcels.FindAsync(id);
-            if (existingParcel == null)
-            {
-                return NotFound("Company not found.");
-            }
-            var token = Request.Headers["Token"].FirstOrDefault();
-            var user = AuthenticationHelper.ValidateToken(token);
 
-            if (user == null)
-            {
-                return Unauthorized("Invalid or expired token.");
-            }
-           
-            existingParcel.CreateBy = user.UserName;
-            existingParcel.CreateDate = DateTime.UtcNow;
-
-            //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
-            //existingParcelType.UpdateBy = parcelType.UpdateBy;
-            //existingParcelType.UpdateDate = DateTime.UtcNow;
-            existingParcel.IsActive = parcel.IsActive;
             _context.Entry(parcel).State = EntityState.Modified;
 
             try
@@ -114,32 +70,15 @@ namespace WebCourierAPI.Controllers
         }
 
         // POST: api/Parcels
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Parcel>> PostParcel(Parcel parcel)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-            if (parcel == null)
-            {
-                return BadRequest("Parcel name is required.");
-            }
-
-            var token = Request.Headers["Token"].FirstOrDefault();
-            var user = AuthenticationHelper.ValidateToken(token);
-
-            if (user == null)
-            {
-                return Unauthorized("Invalid or expired token.");
-            }
-
-            parcel.CreateBy = user.UserName;
-            parcel.CreateDate = DateTime.UtcNow;
-
-
             _context.Parcels.Add(parcel);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetParcel", new { id = parcel.ParcelId }, parcel);
-
         }
 
         // DELETE: api/Parcels/5
@@ -147,7 +86,6 @@ namespace WebCourierAPI.Controllers
         public async Task<IActionResult> DeleteParcel(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-
             var parcel = await _context.Parcels.FindAsync(id);
             if (parcel == null)
             {
@@ -159,10 +97,10 @@ namespace WebCourierAPI.Controllers
 
             return NoContent();
         }
+
         private bool ParcelExists(int id)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-
             return _context.Parcels.Any(e => e.ParcelId == id);
         }
     }

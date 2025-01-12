@@ -23,7 +23,7 @@ public partial class Branch
 
     public int? ParentId { get; set; }
 
-    public virtual ICollection<Branch>? InverseParent { get; set; } = new List<Branch>();
+    public virtual ICollection<Branch> InverseParent { get; set; } = new List<Branch>();
 
     public virtual ICollection<Parcel> ParcelReceiverBranches { get; set; } = new List<Parcel>();
 

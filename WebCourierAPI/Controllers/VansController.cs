@@ -70,7 +70,7 @@ namespace WebCourierAPI.Controllers
             }
             existingvan.VanId = van.VanId;
             existingvan.CreateBy = user.UserName;
-            existingvan.CreateDate = DateTime.UtcNow;
+            //existingvan.CreateDate = DateTime.UtcNow;
 
             //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
             //existingParcelType.UpdateBy = parcelType.UpdateBy;
@@ -118,7 +118,7 @@ namespace WebCourierAPI.Controllers
             }
 
             van.CreateBy = user.UserName;
-            van.CreateDate = DateTime.UtcNow;
+            //van.CreateDate = DateTime.UtcNow;
 
             _context.Vans.Add(van);
             await _context.SaveChangesAsync();
