@@ -194,27 +194,67 @@ public partial class WebCorierApiContext : DbContext
 
             entity.Property(e => e.ParcelId).HasColumnName("parcelId");
             entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
             entity.Property(e => e.DeliveryChargeId).HasColumnName("deliveryChargeId");
             entity.Property(e => e.DriverId).HasColumnName("driverId");
-            entity.Property(e => e.EstimatedReceiveTime).HasColumnName("estimatedReceiveTime");
+            entity.Property(e => e.EstimatedReceiveTime)
+                .HasColumnType("datetime")
+                .HasColumnName("estimatedReceiveTime");
             entity.Property(e => e.ParcelTypeId).HasColumnName("parcelTypeId");
             entity.Property(e => e.PercelSendingDestribution).HasColumnName("percelSendingDestribution");
             entity.Property(e => e.Price)
-                .HasColumnType("decimal(18, 2)")
+                .HasColumnType("decimal(18, 0)")
                 .HasColumnName("price");
             entity.Property(e => e.RecebingBranch).HasColumnName("recebingBranch");
             entity.Property(e => e.RecebingDistributin).HasColumnName("recebingDistributin");
             entity.Property(e => e.RecebingReceber).HasColumnName("recebingReceber");
-            entity.Property(e => e.ReceiveTime).HasColumnName("receiveTime");
+            entity.Property(e => e.ReceiveTime)
+                .HasColumnType("datetime")
+                .HasColumnName("receiveTime");
+            entity.Property(e => e.ReceiverAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("receiverAddress");
+            entity.Property(e => e.ReceiverAlternativetoAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("receiverAlternativetoAddress");
             entity.Property(e => e.ReceiverBranchId).HasColumnName("receiverBranchId");
             entity.Property(e => e.ReceiverCustomerId).HasColumnName("receiverCustomerId");
-            entity.Property(e => e.SendTime).HasColumnName("sendTime");
+            entity.Property(e => e.ReceiverEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("receiverEmail");
+            entity.Property(e => e.ReceiverName)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("receiverName");
+            entity.Property(e => e.ReceiverPhone).HasColumnName("receiverPhone");
+            entity.Property(e => e.SendTime)
+                .HasColumnType("datetime")
+                .HasColumnName("sendTime");
+            entity.Property(e => e.SenderAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("senderAddress");
+            entity.Property(e => e.SenderAlternativetoAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("senderAlternativetoAddress");
             entity.Property(e => e.SenderBranchId).HasColumnName("senderBranchId");
             entity.Property(e => e.SenderCustomerId).HasColumnName("senderCustomerId");
+            entity.Property(e => e.SenderName)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("senderName");
+            entity.Property(e => e.SenderPhone).HasColumnName("senderPhone");
             entity.Property(e => e.SendingBranch).HasColumnName("sendingBranch");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
-            entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
+            entity.Property(e => e.UpdateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("updateDate");
             entity.Property(e => e.VanId).HasColumnName("vanId");
             entity.Property(e => e.Weight).HasColumnName("weight");
 
@@ -222,21 +262,13 @@ public partial class WebCorierApiContext : DbContext
 
             entity.HasOne(d => d.ParcelType).WithMany(p => p.Parcels).HasForeignKey(d => d.ParcelTypeId);
 
-            entity.HasOne(d => d.ReceiverBranch).WithMany(p => p.ParcelReceiverBranches)
-                .HasForeignKey(d => d.ReceiverBranchId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.ReceiverBranch).WithMany(p => p.ParcelReceiverBranches).HasForeignKey(d => d.ReceiverBranchId);
 
-            entity.HasOne(d => d.ReceiverCustomer).WithMany(p => p.Parcels)
-                .HasForeignKey(d => d.ReceiverCustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.ReceiverCustomer).WithMany(p => p.Parcels).HasForeignKey(d => d.ReceiverCustomerId);
 
-            entity.HasOne(d => d.SenderBranch).WithMany(p => p.ParcelSenderBranches)
-                .HasForeignKey(d => d.SenderBranchId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.SenderBranch).WithMany(p => p.ParcelSenderBranches).HasForeignKey(d => d.SenderBranchId);
 
-            entity.HasOne(d => d.SenderCustomer).WithMany(p => p.Parcels)
-                .HasForeignKey(d => d.SenderCustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.SenderCustomer).WithMany(p => p.Parcels).HasForeignKey(d => d.SenderCustomerId);
 
             entity.HasOne(d => d.Van).WithMany(p => p.Parcels).HasForeignKey(d => d.VanId);
         });
@@ -303,8 +335,14 @@ public partial class WebCorierApiContext : DbContext
         modelBuilder.Entity<Van>(entity =>
         {
             entity.Property(e => e.VanId).HasColumnName("vanId");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createDate");
             entity.Property(e => e.RegistrationNo).HasColumnName("registrationNo");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");

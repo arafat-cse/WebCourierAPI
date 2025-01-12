@@ -9,9 +9,9 @@ public partial class Van
 
     public string RegistrationNo { get; set; } = null!;
 
-    public string CreateBy { get; set; } = null!;
+    public string? CreateBy { get; set; }
 
-    public DateTime CreateDate { get; set; }
+    public string? CreateDate { get; set; }
 
     public string? UpdateBy { get; set; }
 
