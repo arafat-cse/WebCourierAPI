@@ -13,9 +13,9 @@ public partial class Designation
 
     public bool IsActive { get; set; }
 
-    public string CreateBy { get; set; } = null!;
+    public string? CreateBy { get; set; }
 
-    public DateTime CreateDate { get; set; }
+    public DateTime? CreateDate { get; set; }
 
     public string? UpdateBy { get; set; }
 

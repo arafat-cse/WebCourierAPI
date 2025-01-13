@@ -145,8 +145,13 @@ public partial class WebCorierApiContext : DbContext
         modelBuilder.Entity<Designation>(entity =>
         {
             entity.Property(e => e.DesignationId).HasColumnName("designationId");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
         });
@@ -276,8 +281,16 @@ public partial class WebCorierApiContext : DbContext
         modelBuilder.Entity<ParcelType>(entity =>
         {
             entity.Property(e => e.ParcelTypeId).HasColumnName("parcelTypeId");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
+            entity.Property(e => e.DefaultPrice)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("defaultPrice");
             entity.Property(e => e.ParcelTypeName).HasColumnName("parcelTypeName");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
@@ -286,8 +299,13 @@ public partial class WebCorierApiContext : DbContext
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
             entity.Property(e => e.PaymentMethodId).HasColumnName("paymentMethodId");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
             entity.Property(e => e.PaymentMethodType).HasColumnName("paymentMethodType");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
@@ -305,8 +323,13 @@ public partial class WebCorierApiContext : DbContext
             entity.HasIndex(e => e.DesignationId, "IX_Staffs_designationId");
 
             entity.Property(e => e.StaffId).HasColumnName("staffId");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
             entity.Property(e => e.DesignationId).HasColumnName("designationId");
             entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.StaffName).HasColumnName("staffName");
