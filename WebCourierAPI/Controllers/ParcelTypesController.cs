@@ -65,12 +65,12 @@ namespace WebCourierAPI.Controllers
                 return Unauthorized("Invalid or expired token.");
             }
             existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
-            existingParcelType.CreateBy = user.UserName;
-            existingParcelType.CreateDate = DateTime.UtcNow;
+            //existingParcelType.CreateBy = user.UserName;
+            //existingParcelType.CreateDate = DateTime.UtcNow;
 
             //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
-            //existingParcelType.UpdateBy = parcelType.UpdateBy;
-            //existingParcelType.UpdateDate = DateTime.UtcNow;
+            existingParcelType.UpdateBy = parcelType.UpdateBy;
+            existingParcelType.UpdateDate = DateTime.UtcNow;
             existingParcelType.IsActive = parcelType.IsActive;
 
             _context.Entry(existingParcelType).State = EntityState.Modified;
