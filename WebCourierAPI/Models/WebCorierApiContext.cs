@@ -77,8 +77,13 @@ public partial class WebCorierApiContext : DbContext
             entity.Property(e => e.BranchId).HasColumnName("branchId");
             entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.BranchName).HasColumnName("branchName");
-            entity.Property(e => e.CreateBy).HasColumnName("createBy");
-            entity.Property(e => e.CreateDate).HasColumnName("createDate");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("createBy");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("createDate");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
 
@@ -323,6 +328,7 @@ public partial class WebCorierApiContext : DbContext
             entity.HasIndex(e => e.DesignationId, "IX_Staffs_designationId");
 
             entity.Property(e => e.StaffId).HasColumnName("staffId");
+            entity.Property(e => e.BranchId).HasColumnName("branchId");
             entity.Property(e => e.CreateBy)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -333,8 +339,16 @@ public partial class WebCorierApiContext : DbContext
             entity.Property(e => e.DesignationId).HasColumnName("designationId");
             entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.StaffName).HasColumnName("staffName");
+            entity.Property(e => e.StaffPhone)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("staffPhone");
             entity.Property(e => e.UpdateBy).HasColumnName("updateBy");
             entity.Property(e => e.UpdateDate).HasColumnName("updateDate");
+
+            entity.HasOne(d => d.Branch).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.BranchId)
+                .HasConstraintName("FK_Staffs_Branches");
 
             entity.HasOne(d => d.Designation).WithMany(p => p.Staff)
                 .HasForeignKey(d => d.DesignationId)
