@@ -27,9 +27,7 @@ namespace WebCourierAPI.Controllers
         {
             try
             {
-                var branches = _db.Branches
-                    .Include(b => b.InverseParent)
-                    .ToList();
+                var branches = _db.Branches.Include(b => b.InverseParent).ToList();
 
                 var branchDTOs = branches.Select(b => new BranchDTO
                 {
@@ -166,70 +164,70 @@ namespace WebCourierAPI.Controllers
         //    }
         //}
 
-        [HttpPost]
-public async Task<IActionResult> PostBranch(Branch branch)
-{
-    WebCorierApiContext _db = new WebCorierApiContext();
-    try
-    {
-        // Validate Model
-        if (!ModelState.IsValid)
-        {
-            cp.status = false;
-            cp.message = "Invalid model data.";
-            cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors)
-                                               .Select(e => e.ErrorMessage)
-                                               .FirstOrDefault();
-            return BadRequest(cp);
-        }
-
-        // Validate Token
-        var token = Request.Headers["Token"].FirstOrDefault();
-        if (string.IsNullOrEmpty(token))
-        {
-            return Unauthorized("Token is missing.");
-        }
-        var user = AuthenticationHelper.ValidateToken(token);
-        if (user == null)
-        {
-            return Unauthorized("Invalid or expired token.");
-        }
-
-        // Validate ParentId
-        if (branch.ParentId.HasValue)
-        {
-            var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
-            if (parentBranch == null)
+    [HttpPost]
+            public async Task<IActionResult> PostBranch(Branch branch)
             {
-                cp.status = false;
-                cp.message = "Invalid ParentId.";
-                return BadRequest(cp);
+                WebCorierApiContext _db = new WebCorierApiContext();
+                try
+                {
+                    // Validate Model
+                    if (!ModelState.IsValid)
+                    {
+                        cp.status = false;
+                        cp.message = "Invalid model data.";
+                        cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors)
+                                                           .Select(e => e.ErrorMessage)
+                                                           .FirstOrDefault();
+                        return BadRequest(cp);
+                    }
+
+                    // Validate Token
+                    var token = Request.Headers["Token"].FirstOrDefault();
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        return Unauthorized("Token is missing.");
+                    }
+                    var user = AuthenticationHelper.ValidateToken(token);
+                    if (user == null)
+                    {
+                        return Unauthorized("Invalid or expired token.");
+                    }
+
+                    // Validate ParentId
+                    if (branch.ParentId.HasValue)
+                    {
+                        var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
+                        if (parentBranch == null)
+                        {
+                            cp.status = false;
+                            cp.message = "Invalid ParentId.";
+                            return BadRequest(cp);
+                        }
+                    }
+
+                    // Set Additional Fields
+                    branch.CreateBy = user.UserName;
+                    branch.CreateDate = DateTime.UtcNow;
+
+                    // Save to Database
+                    _db.Branches.Add(branch);
+                    await _db.SaveChangesAsync();
+
+                    // Return Success
+                    cp.status = true;
+                    cp.message = "Branch created successfully.";
+                    cp.content = branch;
+                    return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
+                }
+                catch (Exception ex)
+                {
+                    cp.status = false;
+                    cp.message = "Error occurred while creating the branch.";
+                    cp.errorMessage = ex.Message;
+                    cp.content = null;
+                    return StatusCode(500, cp);
+                }
             }
-        }
-
-        // Set Additional Fields
-        branch.CreateBy = user.UserName;
-        branch.CreateDate = DateTime.UtcNow;
-
-        // Save to Database
-        _db.Branches.Add(branch);
-        await _db.SaveChangesAsync();
-
-        // Return Success
-        cp.status = true;
-        cp.message = "Branch created successfully.";
-        cp.content = branch;
-        return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
-    }
-    catch (Exception ex)
-    {
-        cp.status = false;
-        cp.message = "Error occurred while creating the branch.";
-        cp.errorMessage = ex.Message;
-        cp.content = null;
-        return StatusCode(500, cp);
-    }
-}
 
         // PUT:/5
         [HttpPut("{id}")]

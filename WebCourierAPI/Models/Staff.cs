@@ -21,9 +21,15 @@ public partial class Staff
 
     public bool IsActive { get; set; }
 
-    public int DesignationId { get; set; }
+    public int? DesignationId { get; set; }
+
+    public string? StaffPhone { get; set; }
+
+    public int? BranchId { get; set; }
+
+    public virtual Branch? Branch { get; set; }
 
     public virtual ICollection<BranchesStaff> BranchesStaffs { get; set; } = new List<BranchesStaff>();
 
-    public virtual Designation Designation { get; set; } = null!;
+    public virtual Designation? Designation { get; set; } = null!;
 }

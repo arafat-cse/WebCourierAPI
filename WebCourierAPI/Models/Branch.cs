@@ -11,9 +11,9 @@ public partial class Branch
 
     public string Address { get; set; } = null!;
 
-    public string CreateBy { get; set; } = null!;
+    public string? CreateBy { get; set; }
 
-    public DateTime CreateDate { get; set; }
+    public DateTime? CreateDate { get; set; }
 
     public string? UpdateBy { get; set; }
 
@@ -30,4 +30,6 @@ public partial class Branch
     public virtual ICollection<Parcel> ParcelSenderBranches { get; set; } = new List<Parcel>();
 
     public virtual Branch? Parent { get; set; }
+
+    public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
 }
