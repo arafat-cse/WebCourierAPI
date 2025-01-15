@@ -11,8 +11,6 @@ using WebCourierAPI.Models;
 
 namespace WebCourierAPI.Controllers
 {
-    [EnableCors("Policy1")]
-    [AuthAttribute("", "Staffs")]
     [Route("api/[controller]")]
     [ApiController]
     public class StaffsController : ControllerBase
