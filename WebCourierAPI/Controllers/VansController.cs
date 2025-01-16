@@ -17,17 +17,13 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class VansController : ControllerBase
     {
-        private readonly WebCorierApiContext _context;
-
-        public VansController(WebCorierApiContext context)
-        {
-            _context = context;
-        }
+        
 
         // GET: api/Vans
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Van>>> GetVans()
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             return await _context.Vans.ToListAsync();
         }
 
@@ -35,6 +31,7 @@ namespace WebCourierAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Van>> GetVan(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             var van = await _context.Vans.FindAsync(id);
 
             if (van == null)
@@ -69,8 +66,8 @@ namespace WebCourierAPI.Controllers
                 return Unauthorized("Invalid or expired token.");
             }
             existingvan.VanId = van.VanId;
-            existingvan.CreateBy = user.UserName;
-            //existingvan.CreateDate = DateTime.UtcNow;
+            existingvan.UpdateBy = user.UserName;
+            existingvan.UpdateDate = DateTime.UtcNow;
 
             //existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
             //existingParcelType.UpdateBy = parcelType.UpdateBy;
@@ -130,6 +127,7 @@ namespace WebCourierAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVan(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             var van = await _context.Vans.FindAsync(id);
             if (van == null)
             {
@@ -143,6 +141,7 @@ namespace WebCourierAPI.Controllers
         }
         private bool VanExists(int id)
         {
+            WebCorierApiContext _context = new WebCorierApiContext();
             return _context.Vans.Any(e => e.VanId == id);
         }
     }
