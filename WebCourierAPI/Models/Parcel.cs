@@ -7,7 +7,7 @@ public partial class Parcel
 {
     public int ParcelId { get; set; }
 
-    public string TrackingCode { get; set; } = null!;
+    public string? TrackingCode { get; set; } = null!;
 
     public int? SenderCustomerId { get; set; }
 
@@ -74,6 +74,8 @@ public partial class Parcel
     public string? ReceiverAddress { get; set; }
 
     public string? ReceiverAlternativetoAddress { get; set; }
+
+    public string? Status { get; set; }
 
     public virtual DeliveryCharge? DeliveryCharge { get; set; }
 
