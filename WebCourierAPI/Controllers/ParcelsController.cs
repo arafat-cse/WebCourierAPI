@@ -23,7 +23,7 @@ namespace WebCourierAPI.Controllers
         public async Task<ActionResult<IEnumerable<Parcel>>> GetParcels()
         {
             WebCorierApiContext _context = new WebCorierApiContext();
-            return await _context.Parcels.ToListAsync();
+            return await _context.Parcels.OrderDescending().ToListAsync();
         }
 
         // GET: api/Parcels/5

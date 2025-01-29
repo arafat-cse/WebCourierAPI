@@ -7,7 +7,7 @@ public partial class Parcel
 {
     public int ParcelId { get; set; }
 
-    public string TrackingCode { get; set; } = null!;
+    public string? TrackingCode { get; set; } = null!;
 
     public int? SenderCustomerId { get; set; }
 
