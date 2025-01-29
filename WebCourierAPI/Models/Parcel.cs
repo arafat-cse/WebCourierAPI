@@ -75,6 +75,8 @@ public partial class Parcel
 
     public string? ReceiverAlternativetoAddress { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual DeliveryCharge? DeliveryCharge { get; set; }
 
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();

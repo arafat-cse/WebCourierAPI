@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http.Tracing;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,8 +50,31 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             if (id != parcel.ParcelId)
             {
-                return BadRequest();
+                return BadRequest("Mismatched perceltype ID.");
             }
+            //var existingParcel = await _context.Parcels.FindAsync(id);
+            //if (existingParcel == null)
+            //{
+            //    return NotFound("percel not found.");
+            //}
+            //var token = Request.Headers["Token"].FirstOrDefault();
+            //var user = AuthenticationHelper.ValidateToken(token);
+
+            //if (user == null)
+            //{
+            //    return Unauthorized("Invalid or expired token.");
+            //}
+            ////existingParcel.TrackingCode = parcel.TrackingCode;
+            ////existingParcel.Price = parcel.Price;
+
+            //////existingParcelType.CreateBy = user.UserName;
+            //////existingParcelType.CreateDate = DateTime.UtcNow;
+
+            //////existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
+            //existingParcel.UpdateBy = parcel.UpdateBy;
+            //existingParcel.UpdateDate = DateTime.UtcNow;
+            //existingParcel.IsActive = parcel.IsActive;
+
 
             _context.Entry(parcel).State = EntityState.Modified;
 
@@ -79,7 +103,12 @@ namespace WebCourierAPI.Controllers
         public async Task<ActionResult<Parcel>> PostParcel(Parcel parcel)
         {
             WebCorierApiContext _context = new WebCorierApiContext();
+           // ইউনিক Tracking Code জেনারেট করা হচ্ছে
+            parcel.TrackingCode = TrackingCodeGenerator.GenerateUniqueTrackingCode(_context);
+
             _context.Parcels.Add(parcel);
+            // এখানে ব্রেকপয়েন্ট দিন এবং parcel.TrackingCode দেখুন
+            Console.WriteLine($"Generated Tracking Code: {parcel.TrackingCode}");
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetParcel", new { id = parcel.ParcelId }, parcel);
@@ -107,5 +136,45 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             return _context.Parcels.Any(e => e.ParcelId == id);
         }
+
+        // PUT: api/Parcels/UpdateStatus/5
+        [HttpPut("UpdateStatus/{id}")]
+        public async Task<IActionResult> UpdateParcelStatus(int id, [FromBody] string status)
+        {
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            // নির্দিষ্ট Parcel খুঁজে বের করুন
+            var parcel = await _context.Parcels.FindAsync(id);
+
+            if (parcel == null)
+            {
+                return NotFound("Parcel not found.");
+            }
+
+            // Status ফিল্ড আপডেট করা হচ্ছে
+            parcel.Status = status;
+            parcel.UpdateDate = DateTime.UtcNow; // আপডেট টাইম সেট করা হচ্ছে
+
+            _context.Entry(parcel).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ParcelExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok("Parcel status updated successfully.");
+        }
+
     }
 }
