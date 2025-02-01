@@ -164,7 +164,7 @@ namespace WebCourierAPI.Controllers
         //    }
         //}
 
-    [HttpPost]
+             [HttpPost]
             public async Task<IActionResult> PostBranch(Branch branch)
             {
                 WebCorierApiContext _db = new WebCorierApiContext();
@@ -175,9 +175,7 @@ namespace WebCourierAPI.Controllers
                     {
                         cp.status = false;
                         cp.message = "Invalid model data.";
-                        cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors)
-                                                           .Select(e => e.ErrorMessage)
-                                                           .FirstOrDefault();
+                        cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault();
                         return BadRequest(cp);
                     }
 

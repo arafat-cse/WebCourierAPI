@@ -66,6 +66,7 @@ namespace WebCourierAPI.Controllers
                 return Unauthorized("Invalid or expired token.");
             }
             existingvan.VanId = van.VanId;
+            existingvan.RegistrationNo = van.RegistrationNo;
             existingvan.UpdateBy = user.UserName;
             existingvan.UpdateDate = DateTime.UtcNow;
 
@@ -144,5 +145,6 @@ namespace WebCourierAPI.Controllers
             WebCorierApiContext _context = new WebCorierApiContext();
             return _context.Vans.Any(e => e.VanId == id);
         }
+
     }
 }

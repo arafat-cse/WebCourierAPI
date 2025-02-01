@@ -41,8 +41,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebCourierAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register EmailService
+builder.Services.AddSingleton<EmailService>();
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -104,7 +109,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSecretKey")) // Replace with your secret key
         };
     });
-
+// Register EmailService
+builder.Services.AddScoped<EmailService>();
 var app = builder.Build();
 
 // Use CORS policy globally (for all endpoints)

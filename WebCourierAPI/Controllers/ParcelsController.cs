@@ -25,7 +25,7 @@ namespace WebCourierAPI.Controllers
         {
             WebCorierApiContext _context = new WebCorierApiContext();
             return await _context.Parcels.OrderDescending().ToListAsync();
-        }
+        }     
 
         // GET: api/Parcels/5
         [HttpGet("{id}")]
@@ -52,29 +52,7 @@ namespace WebCourierAPI.Controllers
             {
                 return BadRequest("Mismatched perceltype ID.");
             }
-            //var existingParcel = await _context.Parcels.FindAsync(id);
-            //if (existingParcel == null)
-            //{
-            //    return NotFound("percel not found.");
-            //}
-            //var token = Request.Headers["Token"].FirstOrDefault();
-            //var user = AuthenticationHelper.ValidateToken(token);
-
-            //if (user == null)
-            //{
-            //    return Unauthorized("Invalid or expired token.");
-            //}
-            ////existingParcel.TrackingCode = parcel.TrackingCode;
-            ////existingParcel.Price = parcel.Price;
-
-            //////existingParcelType.CreateBy = user.UserName;
-            //////existingParcelType.CreateDate = DateTime.UtcNow;
-
-            //////existingParcelType.ParcelTypeName = parcelType.ParcelTypeName;
-            //existingParcel.UpdateBy = parcel.UpdateBy;
-            //existingParcel.UpdateDate = DateTime.UtcNow;
-            //existingParcel.IsActive = parcel.IsActive;
-
+ 
 
             _context.Entry(parcel).State = EntityState.Modified;
 
@@ -175,6 +153,6 @@ namespace WebCourierAPI.Controllers
 
             return Ok("Parcel status updated successfully.");
         }
-
+       
     }
 }
