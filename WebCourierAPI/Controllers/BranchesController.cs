@@ -266,12 +266,14 @@ namespace WebCourierAPI.Controllers
                 existingBranch.BranchName = branch.BranchName;
                 existingBranch.CreateBy = user.UserName;
                 existingBranch.CreateDate = DateTime.UtcNow;
+                existingBranch.Address = branch.Address;
 
-
+                
                 existingBranch.IsActive = branch.IsActive;
 
 
-                _db.Entry(branch).State = EntityState.Modified;
+                //_db.Entry(branch).State = EntityState.Modified;
+                _db.Entry(existingBranch).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
 
                 cp.status = true;
@@ -301,6 +303,44 @@ namespace WebCourierAPI.Controllers
         }
 
         // DELETE:/5
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteBranch(int id)
+        //{
+        //    try
+        //    {
+        //        var branch = await _db.Branches
+        //            .Include(b => b.InverseParent)
+        //            .FirstOrDefaultAsync(b => b.BranchId == id);
+
+        //        if (branch == null)
+        //        {
+        //            cp.status = false;
+        //            cp.message = "Branch not found.";
+        //            return NotFound(cp);
+        //        }
+
+        //        if (branch.InverseParent != null && branch.InverseParent.Any())
+        //        {
+        //            cp.status = false;
+        //            cp.message = "Cannot delete a branch that has child branches.";
+        //            return BadRequest(cp);
+        //        }
+
+        //        _db.Branches.Remove(branch);
+        //        await _db.SaveChangesAsync();
+
+        //        cp.status = true;
+        //        cp.message = "Branch deleted successfully.";
+        //        return Ok(cp);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        cp.status = false;
+        //        cp.message = "Error occurred while deleting the branch.";
+        //        cp.errorMessage = ex.Message;
+        //        return StatusCode(500, cp);
+        //    }
+        //}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
@@ -317,6 +357,7 @@ namespace WebCourierAPI.Controllers
                     return NotFound(cp);
                 }
 
+                // চাইল্ড চেক এবং রিমুভ/আপডেট
                 if (branch.InverseParent != null && branch.InverseParent.Any())
                 {
                     cp.status = false;
@@ -336,9 +377,11 @@ namespace WebCourierAPI.Controllers
                 cp.status = false;
                 cp.message = "Error occurred while deleting the branch.";
                 cp.errorMessage = ex.Message;
+                Console.WriteLine($"DeleteBranch Error: {ex}"); // সম্পূর্ণ ত্রুটি লগ
                 return StatusCode(500, cp);
             }
         }
+
 
         private bool BranchExists(int id)
         {
