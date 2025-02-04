@@ -17,7 +17,16 @@ namespace WebCourierAPI.Controllers
     [ApiController]
     public class BranchesController : ControllerBase
     {
-        WebCorierApiContext _db = new WebCorierApiContext();
+        // WebCorierApiContext _context = new WebCorierApiContext(); 
+
+        // GET: api/Branches
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Branch>>> GetBranches()
+        //{
+        //    WebCorierApiContext _context = new WebCorierApiContext();
+
+        //    return await _context.Branches.ToListAsync();
+        //}
         //CommanResponse
         private readonly CommanResponse cp = new CommanResponse();
 
@@ -25,6 +34,7 @@ namespace WebCourierAPI.Controllers
         [HttpGet]
         public IActionResult GetBranches()
         {
+            WebCorierApiContext _db = new WebCorierApiContext();
             try
             {
                 var branches = _db.Branches.Include(b => b.InverseParent).ToList();
@@ -68,169 +78,28 @@ namespace WebCourierAPI.Controllers
                 return StatusCode(500, cp);
             }
         }
-        // GET:/5
+
+        // GET: api/Branches/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetBranch(int id)
+        public async Task<ActionResult<Branch>> GetBranch(int id)
         {
-            try
-            {
-                var branch = await _db.Branches
-                    .Include(b => b.InverseParent)
-                    .FirstOrDefaultAsync(b => b.BranchId == id);
+            WebCorierApiContext _context = new WebCorierApiContext();
 
-                if (branch == null)
-                {
-                    cp.status = false;
-                    cp.message = "Branch not found.";
-                    cp.content = null;
-                    return NotFound(cp);
-                }
+            var branch = await _context.Branches.FindAsync(id);
 
-                var branchDto = new BranchDTO
-                {
-                    BranchId = branch.BranchId,
-                    BranchName = branch.BranchName,
-                    Address = branch.Address,
-                    ParentId = branch.ParentId,
-                    IsActive = branch.IsActive,
-                    ChildBranches = branch.InverseParent?.Select(cb => new BranchDTO
-                    {
-                        BranchId = cb.BranchId,
-                        BranchName = cb.BranchName,
-                        Address = cb.Address,
-                        ParentId = cb.ParentId,
-                        IsActive = cb.IsActive
-                    }).ToList()
-                };
-                cp.status = true;
-                cp.message = "Branch retrieved successfully.";
-                cp.content = branchDto;
-                return Ok(cp);
-            }
-            catch (Exception ex)
+            if (branch == null)
             {
-                cp.status = false;
-                cp.message = "Error occurred while retrieving the branch.";
-                cp.errorMessage = ex.Message;
-                cp.content = null;
-                return StatusCode(500, cp);
+                return NotFound();
             }
+
+            return branch;
         }
-
-        // POST:
-        //[HttpPost]
-        //public async Task<IActionResult> PostBranch(Branch branch)
-        //{
-        //    WebCorierApiContext _db = new WebCorierApiContext();
-        //    try
-        //    {
-        //        if (branch.ParentId.HasValue)
-        //        {
-        //            var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
-        //            if (parentBranch == null)
-        //            {
-        //                cp.status = false;
-        //                cp.message = "Invalid ParentId.";
-        //                return BadRequest(cp);
-        //            }
-        //        }
-        //        var token = Request.Headers["Token"].FirstOrDefault();
-        //        var user = AuthenticationHelper.ValidateToken(token);
-
-        //        if (user == null)
-        //        {
-        //            return Unauthorized("Invalid or expired token.");
-        //        }
-
-        //        branch.CreateBy = user.UserName;
-        //        branch.CreateDate = DateTime.UtcNow;
-
-
-        //        _db.Branches.Add(branch);
-        //        await _db.SaveChangesAsync();
-
-        //        cp.status = true;
-        //        cp.message = "Branch created successfully.";
-        //        cp.content = branch;
-        //        return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        cp.status = false;
-        //        cp.message = "Error occurred while creating the branch.";
-        //        cp.errorMessage = ex.Message;
-        //        cp.content = null;
-        //        return StatusCode(500, cp);
-        //    }
-        //}
-
-             [HttpPost]
-            public async Task<IActionResult> PostBranch(Branch branch)
-            {
-                WebCorierApiContext _db = new WebCorierApiContext();
-                try
-                {
-                    // Validate Model
-                    if (!ModelState.IsValid)
-                    {
-                        cp.status = false;
-                        cp.message = "Invalid model data.";
-                        cp.errorMessage = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault();
-                        return BadRequest(cp);
-                    }
-
-                    // Validate Token
-                    var token = Request.Headers["Token"].FirstOrDefault();
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        return Unauthorized("Token is missing.");
-                    }
-                    var user = AuthenticationHelper.ValidateToken(token);
-                    if (user == null)
-                    {
-                        return Unauthorized("Invalid or expired token.");
-                    }
-
-                    // Validate ParentId
-                    if (branch.ParentId.HasValue)
-                    {
-                        var parentBranch = await _db.Branches.FindAsync(branch.ParentId.Value);
-                        if (parentBranch == null)
-                        {
-                            cp.status = false;
-                            cp.message = "Invalid ParentId.";
-                            return BadRequest(cp);
-                        }
-                    }
-
-                    // Set Additional Fields
-                    branch.CreateBy = user.UserName;
-                    branch.CreateDate = DateTime.UtcNow;
-
-                    // Save to Database
-                    _db.Branches.Add(branch);
-                    await _db.SaveChangesAsync();
-
-                    // Return Success
-                    cp.status = true;
-                    cp.message = "Branch created successfully.";
-                    cp.content = branch;
-                    return CreatedAtAction(nameof(GetBranch), new { id = branch.BranchId }, cp);
-                }
-                catch (Exception ex)
-                {
-                    cp.status = false;
-                    cp.message = "Error occurred while creating the branch.";
-                    cp.errorMessage = ex.Message;
-                    cp.content = null;
-                    return StatusCode(500, cp);
-                }
-            }
 
         // PUT:/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBranch(int id, Branch branch)
         {
+            WebCorierApiContext _db = new WebCorierApiContext();
             if (id != branch.BranchId)
             {
                 cp.status = false;
@@ -262,13 +131,13 @@ namespace WebCourierAPI.Controllers
                 {
                     return Unauthorized("Invalid or expired token.");
                 }
-                
+
                 existingBranch.BranchName = branch.BranchName;
                 existingBranch.CreateBy = user.UserName;
                 existingBranch.CreateDate = DateTime.UtcNow;
                 existingBranch.Address = branch.Address;
 
-                
+
                 existingBranch.IsActive = branch.IsActive;
 
 
@@ -302,90 +171,42 @@ namespace WebCourierAPI.Controllers
             }
         }
 
-        // DELETE:/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteBranch(int id)
-        //{
-        //    try
-        //    {
-        //        var branch = await _db.Branches
-        //            .Include(b => b.InverseParent)
-        //            .FirstOrDefaultAsync(b => b.BranchId == id);
+        // POST: api/Branches
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Branch>> PostBranch(Branch branch)
+        {
+            WebCorierApiContext _context = new WebCorierApiContext();
 
-        //        if (branch == null)
-        //        {
-        //            cp.status = false;
-        //            cp.message = "Branch not found.";
-        //            return NotFound(cp);
-        //        }
+            _context.Branches.Add(branch);
+            await _context.SaveChangesAsync();
 
-        //        if (branch.InverseParent != null && branch.InverseParent.Any())
-        //        {
-        //            cp.status = false;
-        //            cp.message = "Cannot delete a branch that has child branches.";
-        //            return BadRequest(cp);
-        //        }
+            return CreatedAtAction("GetBranch", new { id = branch.BranchId }, branch);
+        }
 
-        //        _db.Branches.Remove(branch);
-        //        await _db.SaveChangesAsync();
-
-        //        cp.status = true;
-        //        cp.message = "Branch deleted successfully.";
-        //        return Ok(cp);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        cp.status = false;
-        //        cp.message = "Error occurred while deleting the branch.";
-        //        cp.errorMessage = ex.Message;
-        //        return StatusCode(500, cp);
-        //    }
-        //}
+        // DELETE: api/Branches/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
-            try
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            var branch = await _context.Branches.FindAsync(id);
+            if (branch == null)
             {
-                var branch = await _db.Branches
-                    .Include(b => b.InverseParent)
-                    .FirstOrDefaultAsync(b => b.BranchId == id);
-
-                if (branch == null)
-                {
-                    cp.status = false;
-                    cp.message = "Branch not found.";
-                    return NotFound(cp);
-                }
-
-                // চাইল্ড চেক এবং রিমুভ/আপডেট
-                if (branch.InverseParent != null && branch.InverseParent.Any())
-                {
-                    cp.status = false;
-                    cp.message = "Cannot delete a branch that has child branches.";
-                    return BadRequest(cp);
-                }
-
-                _db.Branches.Remove(branch);
-                await _db.SaveChangesAsync();
-
-                cp.status = true;
-                cp.message = "Branch deleted successfully.";
-                return Ok(cp);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                cp.status = false;
-                cp.message = "Error occurred while deleting the branch.";
-                cp.errorMessage = ex.Message;
-                Console.WriteLine($"DeleteBranch Error: {ex}"); // সম্পূর্ণ ত্রুটি লগ
-                return StatusCode(500, cp);
-            }
+
+            _context.Branches.Remove(branch);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
-
 
         private bool BranchExists(int id)
         {
-            return _db.Branches.Any(e => e.BranchId == id);
+            WebCorierApiContext _context = new WebCorierApiContext();
+
+            return _context.Branches.Any(e => e.BranchId == id);
         }
     }
 }
